@@ -47,13 +47,6 @@ nav a:hover{
     color:#00d26a;
 }
 
-.container{
-    width:95%;
-    margin:30px auto;
-    display:grid;
-    grid-template-columns:3fr 1fr;
-    gap:25px;
-}
 
 .player{
     width:100%;
@@ -69,11 +62,11 @@ nav a:hover{
     width:100%;
 }
 
-.server{
-    margin-top:20px;
-    display:flex;
-    gap:15px;
-    flex-wrap:wrap;
+.servers {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .server button{
@@ -320,10 +313,12 @@ button{
 @keyframes blink{
     50%{opacity:0.4;}
 }
-.container{
-    display:flex;
-    gap:20px;
-    align-items:flex-start;
+.container {
+    width: 95%;
+    margin: 20px auto;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
 }
 
 .left{
@@ -334,4 +329,43 @@ button{
     flex:1;
     position:sticky;
     top:20px;
+}
+@media (max-width: 768px) {
+
+    .container {
+        flex-direction: column;
+    }
+
+    .right {
+        position: relative;
+        top: 0;
+        width: 100%;
+    }
+
+    .left {
+        width: 100%;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .chat-box {
+        height: 250px;
+    }
+
+    .player video {
+        height: auto;
+    }
+}
+body {
+    overflow-x: hidden;
 }
