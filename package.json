@@ -11,7 +11,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.18.0",
     "express": "^5.2.1",
     "socket.io": "^4.8.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nguyenthanhan512009-max/BongLive.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nguyenthanhan512009-max/BongLive/issues"
+  },
+  "homepage": "https://github.com/nguyenthanhan512009-max/BongLive#readme"
 }

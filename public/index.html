@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>World Cup Live</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0a0f1c;
+    color:#fff;
+}
+
+/* HEADER */
+.header{
+    padding:18px;
+    background:#111827;
+    font-size:20px;
+    font-weight:bold;
+    color:#00ff88;
+}
+
+/* LIST */
+#list{
+    padding:15px;
+}
+
+/* MATCH CARD */
+.match{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px;
+    margin-bottom:12px;
+    background:#111827;
+    border-radius:14px;
+    border:1px solid #1f2937;
+    transition:0.2s;
+}
+
+.match:hover{
+    transform:scale(1.01);
+    background:#0f172a;
+}
+
+/* TEAM */
+.team{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:40%;
+}
+
+.team.right{
+    justify-content:flex-end;
+}
+
+.team img{
+    width:36px;
+    height:26px;
+    object-fit:cover;
+    border-radius:4px;
+    border:1px solid #333;
+}
+
+/* CENTER */
+.center{
+    text-align:center;
+    width:20%;
+}
+
+.vs{
+    font-size:16px;
+    font-weight:bold;
+    color:#aaa;
+}
+
+.time{
+    font-size:12px;
+    color:#888;
+}
+
+/* STATUS */
+.status{
+    margin-top:5px;
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:20px;
+    display:inline-block;
+}
+
+.live{
+    background:#ff0033;
+    animation:blink 1s infinite;
+}
+
+.upcoming{
+    background:#ffb020;
+    color:#000;
+}
+
+@keyframes blink{
+    50%{opacity:0.4;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">⚽ World Cup Live Matches</div>
+<div style="padding:10px;">
+    <a href="live.html" style="color:#00ff88; text-decoration:none;">
+        ▶ Vào xem trực tiếp
+    </a>
+</div>
+
+<div class="banner">
+    <h2>🔥 World Cup Live Dashboard</h2>
+    <p>Cập nhật trận đấu theo thời gian thực</p>
+</div>
+
+<div id="stats"></div>
+
+
+<div id="list"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+const socket = io();
+
+/* =========================
+   WORLD CUP FLAG + LOGO
+========================= */
+function normalize(name){
+    return (name || "")
+        .toLowerCase()
+        .trim();
+}
+
+function getTeamLogo(team){
+
+    const map = {
+        // USA
+        "usa": "us",
+        "united states": "us",
+        "united states of america": "us",
+
+        // Australia
+        "australia": "au",
+
+        // Morocco (Maroc fix)
+        "morocco": "ma",
+        "maroc": "ma",
+
+        // Scotland (fix riêng)
+        "scotland": "gb-sct",
+        "scotland national team": "gb-sct",
+
+        // UK teams
+        "england": "gb",
+        "wales": "gb-wls",
+        "northern ireland": "gb-nir",
+
+        // World Cup teams
+        "brazil": "br",
+        "argentina": "ar",
+        "france": "fr",
+        "germany": "de",
+        "spain": "es",
+        "portugal": "pt",
+        "netherlands": "nl",
+        "belgium": "be",
+        "croatia": "hr",
+        "japan": "jp",
+        "south korea": "kr",
+        "korea republic": "kr",
+        "mexico": "mx",
+        "uruguay": "uy",
+        "switzerland": "ch",
+        "denmark": "dk",
+        "senegal": "sn",
+        "poland": "pl"
+    };
+
+    const key = normalize(team);
+    const code = map[key];
+
+    if(!code){
+        return "https://flagcdn.com/w40/un.png";
+    }
+
+    return `https://flagcdn.com/w40/${code}.png`;
+}
+
+/* =========================
+   RENDER
+========================= */
+function render(matches){
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+    document.getElementById("stats").innerText =
+    "⚽ Tổng số trận: " + (matches ? matches.length : 0);
+
+    if(!matches || matches.length === 0){
+        list.innerHTML = "<p style='padding:10px'>Không có trận nào</p>";
+        return;
+    }
+
+    const liveMatch = matches.find(m =>
+    m.status === "LIVE" ||
+    m.status === "1H" ||
+    m.status === "2H"
+);
+
+if (liveMatch) {
+    const hot = document.createElement("div");
+    hot.className = "match";
+    hot.style.border = "2px solid #ff0033";
+
+    hot.innerHTML = `
+        🔴 LIVE NOW: ${liveMatch.home} vs ${liveMatch.away}
+    `;
+
+    hot.onclick = () => {
+        window.location.href =
+            "live.html?home=" + encodeURIComponent(liveMatch.home) +
+            "&away=" + encodeURIComponent(liveMatch.away) +
+            "&status=" + liveMatch.status;
+    };
+
+    list.appendChild(hot);
+}
+    matches.forEach(m => {
+
+        const isLive =
+            m.status === "LIVE" ||
+            m.status === "1H" ||
+            m.status === "2H";
+
+        const div = document.createElement("div");
+        div.className = "match";
+        div.onclick = () => {
+    window.location.href =
+        "live.html?home=" + encodeURIComponent(m.home) +
+        "&away=" + encodeURIComponent(m.away) +
+        "&time=" + encodeURIComponent(m.time) +
+        "&status=" + encodeURIComponent(m.status);
+};
+
+        div.innerHTML = `
+            <div class="team">
+                <img src="${getTeamLogo(m.home)}">
+                <span>${m.home}</span>
+            </div>
+
+            <div class="center">
+                <div class="time">
+                    ${new Date(m.time).toLocaleString()}
+                </div>
+
+                <div class="vs">VS</div>
+
+                <div class="status ${isLive ? "live" : "upcoming"}">
+                    ${m.status}
+                </div>
+            </div>
+
+            <div class="team right">
+                <span>${m.away}</span>
+                <img src="${getTeamLogo(m.away)}">
+            </div>
+        `;
+
+        list.appendChild(div);
+    });
+}
+
+/* SOCKET */
+socket.on("matches:update", render);
+
+fetch("/api/matches")
+.then(r => r.json())
+.then(render);
+</script>
+
+</body>
+</html>
